@@ -18,10 +18,12 @@ namespace WebApplication3.Controllers
     {
 
 
-        [Route("webapi/study/GET_IP")]
+        
         [HttpGet]
+        [Route("webapi/study/GET_IP")]
         public HttpResponseMessage GetClientIp()
         {
+         
             var clientIp = GetClientIPAddress();
             var clientMac = GetClientMACAddress();
 
@@ -97,22 +99,36 @@ namespace WebApplication3.Controllers
 
 
         //=======using HttpPost để thực hiện function xóa tất cả các file trong folder + xóa folder đó //
-        [Route("webapi/study/DeleteFile")]
+
         [HttpPost]
-        public IHttpActionResult DeleteFile(string filePath)
+        [Route("webapi/study/DeleteFile")]
+        public IHttpActionResult DeleteFile([FromBody] Study file)
         {
-            List<Study> list_Study = new List<Study>();
-            if (System.IO.File.Exists(filePath))
-            {
-                System.IO.File.Delete(filePath);
-                return Json(new { message = "Delete file" });
+            if (file == null || string.IsNullOrWhiteSpace(file.FilePath))
+                return BadRequest("Invalid request: file path is required.");
 
-            }
-            else
-            {
-                return Json(new { message = "Not file" });
-            }
+            string fullPath = file.FilePath; // chấp nhận đường dẫn tuyệt đối
 
+            try
+            {
+                if (System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                    return Ok(new { message = "Deleted file" });
+                }
+                else
+                {
+                    return Content(HttpStatusCode.NotFound, new { message = "File not found" });
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Content(HttpStatusCode.Forbidden, new { message = "No permission to delete file" });
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
     }
