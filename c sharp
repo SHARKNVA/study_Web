@@ -1,0 +1,49 @@
+Sau khi tạo đc web API rồi thì e sẽ tạo 1 controller đặt tên cho nó và sẽ bắt đầu viết code C# controller 
+Lưu ý :Các phương thức thường dùng trong Web API như : GET, POST, PUT, DELETE. (chú trọng vào GET + POST )
+Phương thức GET: Dùng để truy cập và đọc tài nguyên dữ liệu.
+Phương thức POST: Dùng để cập nhật hoặc tạo mới tài nguyên dữ liệu.
+Phương thức PUT: Dùng để tạo mới tài nguyên dữ liệu.
+Phương thức DELETE: Dùng để xóa tài nguyên dữ liệu.
+
+Bài toán như sau: 
+- using HttpGet lấy địa chỉ IP + địa chỉ MAC của máy gọi API đó.
+- using HttpPost để thực hiện function sau khi update file sẽ tạo folder mới và save file vào folder vừa tạo với file name = date + tên file ban đầu.
+- using HttpPost để thực hiện function xóa tất cả các file trong folder + xóa folder đó .
+- using HttpPost để thực hiện function export 1 file excel có sẵn thành file pdf và lưu vào đúng đường dẫn chứa file excel đó.
+- using HttpPost để thực hiện function gửi mail có các tham số truyền đầu vào (from + subject + To + CC + body) hiện tại mình dùng SMTP có host và port như này nhé 
+( 
+mailMsg.Priority = MailPriority.Normal;
+ SmtpClient client = new SmtpClient("nonauth-smtp.global.canon.co.jp", 25);
+ NetworkCredential info = new NetworkCredential(emailBody.from, "cvn-sys");
+ client.DeliveryMethod = SmtpDeliveryMethod.Network;
+ client.Credentials = info;
+ client.EnableSsl = false;
+)
+
+
+
+Demo bài toán tạo mới 1 folder: 
+
+[Route("webapi/test/createfolder")]
+[HttpPost]
+public Object CreateFolder(string folderPath)
+{
+    Object response;
+
+    if (!(Directory.Exists(folderPath)))
+    {
+        Directory.CreateDirectory(folderPath);
+        response = new
+        {
+            errorMessage = "Create folder success!"
+        };
+    }
+    else
+    {
+        response = new
+        {
+            errorMessage = "Folder already exist!"
+        };
+    }
+    return response;
+}
