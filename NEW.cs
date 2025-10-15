@@ -285,6 +285,42 @@ namespace WebApplication3.Controllers
                 return BadRequest("Error sending mail: " + ex.Message);
             }
         }
+
+         private static void SendEmail(string partno, string ckPoint, string ckPosition)
+        {
+            try
+            {
+                string senderEmail = "Asset-sys@local.canon-vn.com.vn";  // Địa chỉ gửi
+                string receiverEmail = "anh.nguyen707@mail.canon";       // Địa chỉ nhận
+                string smtpServer = "nonauth-smtp.global.canon.co.jp";        // Máy chủ SMTP
+                int smtpPort = 25;
+                string smtpUser = "Asset-sys@local.canon-vn.com.vn";  // Tài khoản gửi
+                string smtpPassword = "YourPasswordHere";  // Mật khẩu (bảo mật)
+
+                
+
+                string subject = "Thông báo lỗi";
+                string body = $"Điểm đo đầu tiên không tìm thấy của partno! \n {partno} \nĐiểm: {ckPoint}\n - {ckPosition}";
+
+                MailMessage mail = new MailMessage();
+                mail.From = new MailAddress(senderEmail);
+                mail.To.Add(receiverEmail);
+                mail.Subject = subject;
+                mail.Body = body;
+                mail.IsBodyHtml = false;
+
+                SmtpClient smtpClient = new SmtpClient(smtpServer, smtpPort);
+                smtpClient.Credentials = new NetworkCredential(smtpUser, smtpPassword);
+                smtpClient.EnableSsl = true; // Kích hoạt SSL nếu cần
+
+                smtpClient.Send(mail);
+                Console.WriteLine("Email đã gửi thành công!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi gửi email: {ex.Message}");
+            }
+        }
     }
 
 }
