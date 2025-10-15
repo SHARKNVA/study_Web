@@ -56,4 +56,86 @@ namespace WebApplication1.Controllers
         public string Subject { get; set; }   // Tiêu đề
         public string Body { get; set; }      // Nội dung email (ví dụ: "hello")
     }
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini HTTP Tester</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 { text-align: center; color: #333; }
+    input, select, textarea, button {
+      width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc;
+      border-radius: 8px; font-size: 14px;
+    }
+    button {
+      background: #007bff; color: white; font-weight: bold; border: none; cursor: pointer;
+    }
+    button:hover { background: #0056b3; }
+    pre {
+      background: #222; color: #0f0; padding: 15px;
+      border-radius: 8px; overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>HTTP POST Tester</h1>
+  <label>API URL:</label>
+  <input id="url" type="text" placeholder="http://localhost:5000/api/mail/send" />
+
+  <label>Method:</label>
+  <select id="method">
+    <option value="POST">POST</option>
+    <option value="GET">GET</option>
+  </select>
+
+  <label>Request Body (JSON):</label>
+  <textarea id="body" rows="8">
+{
+  "To": "anh.nguyen707@mail.canon",
+  "Subject": "Test API gửi mail",
+  "Body": "hello"
+}
+  </textarea>
+
+  <button onclick="sendRequest()">🚀 Gửi Request</button>
+
+  <h3>Kết quả:</h3>
+  <pre id="response"></pre>
+
+  <script>
+    async function sendRequest() {
+      const url = document.getElementById('url').value;
+      const method = document.getElementById('method').value;
+      const body = document.getElementById('body').value;
+      const responseElement = document.getElementById('response');
+
+      try {
+        const res = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: method === 'POST' ? body : undefined
+        });
+        const text = await res.text();
+        responseElement.textContent = `Status: ${res.status}\n\n${text}`;
+      } catch (error) {
+        responseElement.textContent = '❌ Lỗi: ' + error.message;
+      }
+    }
+  </script>
+</body>
+</html>
+
 }
