@@ -1,0 +1,59 @@
+using System;
+using System.Net;
+using System.Net.Mail;
+using System.Web.Http;
+using System.Web.Http.Cors;
+
+namespace WebApplication1.Controllers
+{
+    [EnableCors(origins: "*", headers: "*", methods: "*")] // Cho phép test từ trình duyệt
+    public class MailController : ApiController
+    {
+        [HttpPost]
+        [Route("api/mail/send")]
+        public IHttpActionResult SendMail([FromBody] MailRequest request)
+        {
+            if (request == null)
+                return BadRequest("Thiếu dữ liệu email!");
+
+            try
+            {
+                // 📨 Cấu hình SMTP
+                string senderEmail = "Asset-sys@local.canon-vn.com.vn";
+                string smtpServer = "nonauth-smtp.global.canon.co.jp";
+                int smtpPort = 25;
+                string smtpUser = "Asset-sys@local.canon-vn.com.vn";
+                string smtpPassword = "YourPasswordHere"; // đổi nếu cần
+
+                // 🧾 Tạo email
+                MailMessage mail = new MailMessage();
+                mail.From = new MailAddress(senderEmail);
+                mail.To.Add(request.To);
+                mail.Subject = request.Subject ?? "📧 Thông báo từ hệ thống";
+                mail.Body = request.Body ?? "hello";  // nếu không gửi gì, mặc định là “hello”
+                mail.IsBodyHtml = true; // cho phép HTML trong nội dung
+
+                using (SmtpClient smtp = new SmtpClient(smtpServer, smtpPort))
+                {
+                    smtp.Credentials = new NetworkCredential(smtpUser, smtpPassword);
+                    smtp.EnableSsl = true; // có thể tắt nếu server nội bộ không yêu cầu
+                    smtp.Send(mail);
+                }
+
+                return Ok(new { message = "✅ Email đã được gửi thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"❌ Lỗi gửi email: {ex.Message}");
+            }
+        }
+    }
+
+    // 🧩 Model dữ liệu POST
+    public class MailRequest
+    {
+        public string To { get; set; }        // Người nhận
+        public string Subject { get; set; }   // Tiêu đề
+        public string Body { get; set; }      // Nội dung email (ví dụ: "hello")
+    }
+}
