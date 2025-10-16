@@ -20,7 +20,62 @@ namespace WebApplication3.Controllers
     public class StudyController : ApiController
     {
 
+        
+        [Route("webapi/study/getip")]
+        [System.Web.Http.HttpGet]
+        public string GetIp()
+        {
 
+            string ipAddress = string.Empty;
+
+
+            if (HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"] != null)
+            {
+                ipAddress = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"].ToString();
+            }
+            else if (!string.IsNullOrEmpty(HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"]))
+            {
+                ipAddress = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
+            }
+
+
+            return ipAddress;
+        }
+
+        [Route("webapi/study/getmac")]
+        [System.Web.Http.HttpGet]
+        public string GetMac()
+        {
+
+            string clientMac = "";
+            try
+            {
+                NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+                foreach (NetworkInterface nic in interfaces)
+                {
+                    if (nic.OperationalStatus == OperationalStatus.Up && nic.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                    {
+                        PhysicalAddress physicalAddr = nic.GetPhysicalAddress();
+                        byte[] bytes = physicalAddr.GetAddressBytes();
+                        for (int i = 0; i < bytes.Length; i++)
+                        {
+                            clientMac += bytes[i].ToString("X2");
+                            if (i != bytes.Length - 1)
+                            {
+                                clientMac += ":";
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(clientMac))
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                clientMac = "Error: " + ex.Message;
+            }
+            return clientMac;
+        }
 
         [HttpGet]
         [Route("webapi/study/GET_IP")]
